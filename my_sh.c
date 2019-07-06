@@ -2,24 +2,33 @@
 #include "stat.h"
 #include "user.h"
 
-void
-getcmd(char* buf)
-{
-  int cp;
+#define CMDLEN 512
 
-  gets(buf, 512);
-  cp = index(buf, '\n');
-  buf[cp] = '\0';
+void
+get_cmd(char* buf)
+{
+  char* end_cmd;
+
+  gets(buf, CMDLEN);
+  end_cmd = strchr(buf, '\n');
+  memset(end_cmd,'\0',1);
+}
+
+char**
+parse_cmd(char* buf)
+{
+  char **tokens = malloc(CMDLEN * sizeof(char*));
+  strtok(buf, ' ', tokens);
+
+  //for (int i = 0; i < sizeof(tokens); i++) {
+  //  printf(1,"%d: %s\n",i,tokens[i]);
+  //}
+
+  return tokens;
 }
 
 void
-parsecmd(char* buf, char** args)
-{
-  *args = buf;
-}
-
-void
-execcmd(char** args)
+exec_cmd(char** tokens)
 {
   int pid;
 
@@ -27,10 +36,10 @@ execcmd(char** args)
     panic("fork");
 
   if (pid == 0) {     // child
-    if (exec(*args, args) < 0)
+    if (exec(tokens[0], tokens) < 0)
       panic("exec");
   }
-  else {      // parent
+  else {              // parent
     wait();
   }
 }
@@ -38,14 +47,14 @@ execcmd(char** args)
 int
 main()
 {
-  char buf[512];
-  char *args[512];
+  char buf[CMDLEN];
+  char **tokens = malloc(CMDLEN * sizeof(char*));
 
   while(1) {
     printf(1, " /)/)\n( 'x') ");
 
-    getcmd(buf);
-    parsecmd(buf, args);
-    execcmd(args);
+    get_cmd(buf);
+    tokens = parse_cmd(buf);
+    exec_cmd(tokens);
   }
 }

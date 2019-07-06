@@ -113,11 +113,32 @@ panic(char *s)
 }
 
 int
-index(char *s, char c)
-{
-  for(int i=0; i <= strlen(s); i++) {
-    if (s[i] == c)
-      return i;
+strtok(char *str, char delimiter, char** tokens) {
+  char *s;
+  char *tok_head;
+  int argc;
+  int arglen;
+
+  s = str;
+  tok_head = str;
+  argc = 0;
+  arglen = 0;
+
+  while (*s != '\0') {
+    if (*s == delimiter) {
+      memset(s,'\0',1);
+      tokens[argc] = tok_head;
+      arglen = 0;
+      argc++;
+      tok_head = s + 1;
+    }
+    arglen++;
+    s++;
   }
-  return -1;
+  if (arglen != 0) {
+    tokens[argc] = tok_head;
+    argc++;
+  }
+
+  return argc;
 }
