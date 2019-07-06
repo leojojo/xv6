@@ -4,6 +4,20 @@
 
 #define CMDLEN 512
 
+int
+my_sh_cd(char **args)
+{
+  if (sizeof(args) < 2)
+    panic("cd needs argument");
+
+  if (chdir(args[1]) != 0) {
+    printf(2, "cd failed\n");
+    return 1;
+  }
+
+  return 0;
+}
+
 void
 get_cmd(char* buf)
 {
@@ -17,44 +31,50 @@ get_cmd(char* buf)
 char**
 parse_cmd(char* buf)
 {
-  char **tokens = malloc(CMDLEN * sizeof(char*));
-  strtok(buf, ' ', tokens);
+  char **args = malloc(CMDLEN * sizeof(char*));
+  strtok(buf, ' ', args);
 
-  //for (int i = 0; i < sizeof(tokens); i++) {
-  //  printf(1,"%d: %s\n",i,tokens[i]);
+  //debug
+  //for (int i = 0; i < sizeof(args); i++) {
+  //  printf(1,"%d: %s\n",i,args[i]);
   //}
 
-  return tokens;
+  return args;
 }
 
-void
-exec_cmd(char** tokens)
+int
+exec_cmd(char** args)
 {
   int pid;
+
+  if (strcmp(args[0],"cd") == 0)
+    return my_sh_cd(args);
 
   if ((pid = fork()) < 0)
     panic("fork");
 
   if (pid == 0) {     // child
-    if (exec(tokens[0], tokens) < 0)
+    if (exec(args[0], args) < 0)
       panic("exec");
   }
   else {              // parent
     wait();
   }
+
+  return 0;
 }
 
 int
 main()
 {
   char buf[CMDLEN];
-  char **tokens = malloc(CMDLEN * sizeof(char*));
+  char **args = malloc(CMDLEN * sizeof(char*));
 
   while(1) {
     printf(1, " /)/)\n( 'x') ");
 
     get_cmd(buf);
-    tokens = parse_cmd(buf);
-    exec_cmd(tokens);
+    args = parse_cmd(buf);
+    exec_cmd(args);
   }
 }
