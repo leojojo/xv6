@@ -104,3 +104,20 @@ memmove(void *vdst, const void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+void
+panic(char *s)
+{
+  printf(2, "panic: %s\n", s);
+  exit();
+}
+
+int
+index(char *s, char c)
+{
+  for(int i=0; i <= strlen(s); i++) {
+    if (s[i] == c)
+      return i;
+  }
+  return -1;
+}

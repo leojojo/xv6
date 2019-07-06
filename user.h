@@ -38,3 +38,5 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+void panic(char *s);      // prints s and exits
+int index(char *s, char c);     // returns index of c, if not found returns -1

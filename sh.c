@@ -50,7 +50,6 @@ struct backcmd {
 };
 
 int fork1(void);  // Fork but panics on failure.
-void panic(char*);
 struct cmd *parsecmd(char*);
 
 // Execute cmd.  Never returns.
@@ -168,13 +167,6 @@ main(void)
       runcmd(parsecmd(buf));
     wait();
   }
-  exit();
-}
-
-void
-panic(char *s)
-{
-  printf(2, "%s\n", s);
   exit();
 }
 
