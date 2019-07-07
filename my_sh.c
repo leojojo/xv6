@@ -1,8 +1,10 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "fcntl.h"
 
 #define CMDLEN 64
+#define STDOUT_FILENO 1
 
 struct cmd {
   char **argv;
@@ -36,7 +38,21 @@ get_cmd(char* buf)
 int
 parse_cmd(char* buf, struct cmd *cmd)
 {
-  int n = strtok(buf, ' ', cmd->argv);
+  char **block = malloc(sizeof(char**));
+  int out_fd;
+
+  if ((strtok(buf, '>', block)) > 1) {
+    if (close(STDOUT_FILENO))
+      panic("close");
+    if ((out_fd = open(block[1], O_WRONLY|O_CREATE)))
+      panic("open");      // succeeds creating but fails to open
+    if (dup(out_fd))
+      panic("dup");
+    if (close(out_fd))
+      panic("close");
+  }
+
+  int n = strtok(block[0], ' ', cmd->argv);
 
   //debug
   //for (int i = 0; i < sizeof(args); i++) {
