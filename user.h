@@ -1,3 +1,5 @@
+#define NULL (void*)0
+
 struct stat;
 struct rtcdate;
 
