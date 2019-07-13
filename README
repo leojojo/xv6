@@ -1,3 +1,17 @@
+# my xv6
+
+## network
+### references
+https://github.com/vibhorvatsa/xv6-networking-stack
+http://yasukata.hatenablog.com/entry/2017/11/29/093437
+https://slideplayer.com/slide/17036614/
+https://pdos.csail.mit.edu/6.828/2017/readings/hardware/8254x_GBe_SDM.pdf
+https://static.lwn.net/images/pdf/LDD3/ch12.pdf
+https://static.lwn.net/images/pdf/LDD3/ch15.pdf
+https://static.lwn.net/images/pdf/LDD3/ch17.pdf
+
+---
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern x86-based multiprocessor using ANSI C.
