@@ -6,6 +6,7 @@
 #define CMDLEN 64
 #define STDOUT_FILENO 1
 
+static const char PROMPT[] = " /)/)\n( 'x') ";
 struct cmd {
   char *redir;
   char **argv;
@@ -15,7 +16,7 @@ int
 my_sh_cd(struct cmd *cmd)
 {
   char **args = cmd->argv;
-  if (sizeof(args) < 2 || args[1] == NULL)
+  if (sizeof(args) < 2 || !(args[1]))
     panic("cd needs argument");
 
   if (chdir(args[1]) != 0) {
@@ -60,15 +61,19 @@ parse_cmd(char* buf, struct cmd *cmd)
 int
 exec_cmd(struct cmd *cmd, int num_args)
 {
-  int pid, out_fd,d;
+  int pid, out_fd;
   char **args;
   
-  if ((args = malloc(sizeof(cmd))) == NULL)
+  if (!(args = malloc(sizeof(cmd))))
     panic("malloc");
 
   for (int i = 0; i < num_args; i++)
     args[i] = cmd->argv[i];
 
+  if (strlen(args[0]) == 0)
+    return 0;
+  if (strcmp(args[0],"exit") == 0)
+    exit();
   if (strcmp(args[0],"cd") == 0)
     return my_sh_cd(cmd);
 
@@ -76,7 +81,7 @@ exec_cmd(struct cmd *cmd, int num_args)
     panic("fork");
 
   if (pid == 0) {     // child
-    if (cmd->redir != NULL) {
+    if (cmd->redir) {
       if (close(STDOUT_FILENO))
         panic("close");
       if ((out_fd = open(cmd->redir, O_WRONLY|O_CREATE)) < 0)
@@ -85,10 +90,8 @@ exec_cmd(struct cmd *cmd, int num_args)
         panic("exec");
       if (close(out_fd))
         panic("close");
-      if ((d = open("console", O_RDWR))) {
-        printf(2,"open: %d\n",d);
+      if (open("console", O_RDWR))
         panic("open: console");
-      }
     } else {
       if (exec(args[0], args) < 0)
         panic("exec");
@@ -109,13 +112,13 @@ main()
   struct cmd *cmd;
   int n;
 
-  if ((cmd = malloc(sizeof(cmd))) == NULL)
+  if (!(cmd = malloc(sizeof(cmd))))
     panic("malloc");
   cmd->argv = NULL;
   cmd->redir = NULL;
 
   while(1) {
-    printf(1, " /)/)\n( 'x') ");
+    write(1,PROMPT,sizeof(PROMPT));
 
     get_cmd(buf);
     n = parse_cmd(buf, cmd);
