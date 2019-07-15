@@ -7,6 +7,7 @@
 #define STDOUT_FILENO 1
 
 struct cmd {
+  char *redir;
   char **argv;
 };
 
@@ -39,17 +40,9 @@ int
 parse_cmd(char* buf, struct cmd *cmd)
 {
   char **block = malloc(sizeof(char**));
-  int out_fd;
 
   if ((strtok(buf, '>', block)) > 1) {
-    if (close(STDOUT_FILENO))
-      panic("close");
-    if ((out_fd = open(block[1], O_WRONLY|O_CREATE)))
-      panic("open");      // succeeds creating but fails to open
-    if (dup(out_fd))
-      panic("dup");
-    if (close(out_fd))
-      panic("close");
+    cmd->redir = block[1];
   }
 
   int n = strtok(block[0], ' ', cmd->argv);
@@ -65,7 +58,7 @@ parse_cmd(char* buf, struct cmd *cmd)
 int
 exec_cmd(struct cmd *cmd, int num_args)
 {
-  int pid;
+  int pid, out_fd,d;
   char **args;
   
   if ((args = malloc(sizeof(cmd))) == NULL)
@@ -81,8 +74,27 @@ exec_cmd(struct cmd *cmd, int num_args)
     panic("fork");
 
   if (pid == 0) {     // child
-    if (exec(args[0], args) < 0)
-      panic("exec");
+    if (cmd->redir != NULL) {
+      //if (dup(STDOUT_FILENO) < 0)
+      //  panic("dup");
+      if (close(STDOUT_FILENO))
+        panic("close");
+      if ((out_fd = open(cmd->redir, O_WRONLY|O_CREATE)) < 0)
+        panic("open");
+      //if ((d = dup(out_fd)) < 0)
+      //  panic("dup");
+      if (exec(args[0], args) < 0)
+        panic("exec");
+      //if (close(out_fd))
+      //  panic("close");
+      if ((d = open("console", O_RDWR))) {
+        printf(2,"open: %d\n",d);
+        panic("open: console");
+      }
+    } else {
+      if (exec(args[0], args) < 0)
+        panic("exec");
+    }
   }
   else {              // parent
     wait();
