@@ -43,6 +43,8 @@ parse_cmd(char* buf, struct cmd *cmd)
 
   if ((strtok(buf, '>', block)) > 1) {
     cmd->redir = block[1];
+  } else {
+    cmd->redir = NULL;
   }
 
   int n = strtok(block[0], ' ', cmd->argv);
@@ -75,18 +77,14 @@ exec_cmd(struct cmd *cmd, int num_args)
 
   if (pid == 0) {     // child
     if (cmd->redir != NULL) {
-      //if (dup(STDOUT_FILENO) < 0)
-      //  panic("dup");
       if (close(STDOUT_FILENO))
         panic("close");
       if ((out_fd = open(cmd->redir, O_WRONLY|O_CREATE)) < 0)
         panic("open");
-      //if ((d = dup(out_fd)) < 0)
-      //  panic("dup");
       if (exec(args[0], args) < 0)
         panic("exec");
-      //if (close(out_fd))
-      //  panic("close");
+      if (close(out_fd))
+        panic("close");
       if ((d = open("console", O_RDWR))) {
         printf(2,"open: %d\n",d);
         panic("open: console");
@@ -113,6 +111,8 @@ main()
 
   if ((cmd = malloc(sizeof(cmd))) == NULL)
     panic("malloc");
+  cmd->argv = NULL;
+  cmd->redir = NULL;
 
   while(1) {
     printf(1, " /)/)\n( 'x') ");
