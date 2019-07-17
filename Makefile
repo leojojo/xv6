@@ -184,6 +184,7 @@ UPROGS=\
 	_hello\
 	_my_echo\
 	_my_sh\
+	_ps\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

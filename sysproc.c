@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "procinfo.h"
 
 int
 sys_fork(void)
@@ -94,4 +95,16 @@ void
 sys_hello(void)
 {
   cprintf("Hello Kernel!\n");
+}
+
+int
+sys_getproc(struct procinfo *p_info)
+{
+  int n;
+
+  if ((argptr(0, (char **)&p_info, sizeof(struct procinfo)*NPROC) < 0))
+    return -1;
+  n = getproc(p_info);
+
+  return n;
 }
