@@ -28,6 +28,7 @@ int sleep(int);
 int uptime(void);
 void hello(void);
 int getproc(struct procinfo*);
+int chroot(const char*);
 
 // ulib.c
 int stat(const char*, struct stat*);

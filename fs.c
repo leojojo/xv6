@@ -647,8 +647,14 @@ namex(char *path, int nameiparent, char *name)
       iunlockput(ip);
       return 0;
     }
-    iunlockput(ip);
-    ip = next;
+
+    if(ip == myproc()->rdir && namecmp(name, "..") == 0){     // you can (not) escape
+      iunlock(ip);
+    } else {
+      iunlockput(ip);
+      ip = next;
+    }
+
   }
   if(nameiparent){
     iput(ip);

@@ -142,6 +142,7 @@ userinit(void)
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
+  p->rdir = namei("/");
 
   // this assignment to p->state lets other cores
   // run this process. the acquire forces the above
@@ -208,6 +209,7 @@ fork(void)
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
   np->cwd = idup(curproc->cwd);
+  np->rdir = idup(curproc->rdir);
 
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
@@ -245,8 +247,10 @@ exit(void)
 
   begin_op();
   iput(curproc->cwd);
+  iput(curproc->rdir);
   end_op();
   curproc->cwd = 0;
+  curproc->rdir = 0;
 
   acquire(&ptable.lock);
 
