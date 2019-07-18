@@ -1,6 +1,7 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "param.h"
 
 #define CMDLEN 64
 
