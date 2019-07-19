@@ -186,6 +186,7 @@ UPROGS=\
 	_my_sh\
 	_ps\
 	_chroot\
+	_cp\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
