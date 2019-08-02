@@ -627,8 +627,16 @@ namex(char *path, int nameiparent, char *name)
 {
   struct inode *ip, *next;
 
-  if(*path == '/')
-    ip = iget(ROOTDEV, ROOTINO);
+  if(*path == '/') {
+    struct inode *root;
+
+    if(myproc()) {
+      root = myproc()->rdir;
+      ip = iget(root->dev, root->inum);                       // you can (not) escape
+    }
+    else
+      ip = iget(ROOTDEV, ROOTINO);
+  }
   else
     ip = idup(myproc()->cwd);
 
