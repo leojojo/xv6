@@ -2,6 +2,10 @@
 - xv6 filesystem: https://pdos.csail.mit.edu/6.828/2017/lec/l-name.html
 - Version7 UNIX: https://github.com/v7unix/v7unix
 
+## PCI, e1000 driver
+- a lecture on pci: https://www.khoury.northeastern.edu/~pjd/cs7680/homework/pci-enumeration.html
+- an implementation of xv6 network: https://github.com/vibhorvatsa/xv6-networking-stack
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern x86-based multiprocessor using ANSI C.
