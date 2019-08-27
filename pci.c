@@ -1,37 +1,19 @@
 #include "types.h"
 #include "defs.h"
 #include "x86.h"
-
-#define PCI_CONFIG_ADDRESS 0xCF8
-#define PCI_CONFIG_DATA 0xCFC
-
-#define PCI_INTERRUPT_REG 0x3c
-#define PCI_INTERRUPT_LINE_SHIFT    0
-#define PCI_INTERRUPT_LINE_MASK     0xff
-#define PCI_INTERRUPT_LINE(icr) \
-        (((icr) >> PCI_INTERRUPT_LINE_SHIFT) & PCI_INTERRUPT_LINE_MASK)
-
-#define PCI_ID_REG 0x00
-#define PCI_VENDOR_SHIFT      0
-#define PCI_VENDOR_MASK       0xffff
-#define PCI_VENDOR(id) \
-        (((id) >> PCI_VENDOR_SHIFT) & PCI_VENDOR_MASK)
-
-#define PCI_PRODUCT_SHIFT     16
-#define PCI_PRODUCT_MASK      0xffff
-#define PCI_PRODUCT(id) \
-        (((id) >> PCI_PRODUCT_SHIFT) & PCI_PRODUCT_MASK)
-
-#define PCI_CLASS_REG 0x08
-#define PCI_CLASS_SHIFT       24
-#define PCI_CLASS_MASK        0xff
-#define PCI_CLASS(cr) \
-        (((cr) >> PCI_CLASS_SHIFT) & PCI_CLASS_MASK)
+#include "pci.h"
 
 struct pci_func {
   int bus;
   int device;
   int function;
+
+  int dev_id;
+  int dev_class;
+
+  int reg_base[6];
+  int reg_size[6];
+  int irq;
 };
 
 int
@@ -46,6 +28,28 @@ pci_conf_read(struct pci_func pci, int offset)
   return inl(PCI_CONFIG_DATA);
 }
 
+void
+print_pci_function(struct pci_func *pci)
+{
+  static const char *pci_class[] = {
+    "Unclassified device",
+    "Mass storage controller",
+    "Network controller",
+    "Display controller",
+    "Multimedia device",
+    "Memory controller",
+    "Bridge device",
+  };
+
+  cprintf("PCI\tbus: %x\t", pci->bus);
+  cprintf("device: %x\t", pci->device);
+  cprintf("function: %d\t", pci->function);
+  cprintf("irq line: %d\t", pci->irq);
+  cprintf("vendor: %x\t", PCI_VENDOR(pci->dev_id));
+  cprintf("product: %x\t", PCI_PRODUCT(pci->dev_id));
+  cprintf("class: %s\n", pci_class[PCI_CLASS(pci->dev_class)]);
+}
+
 int
 pciinit()
 {
@@ -57,20 +61,13 @@ pciinit()
     device_ctr++;
 
     for (pci.function = 0; pci.function < 8; pci.function++) {      // loop over device for functions
-      int vend_prod = pci_conf_read(pci, PCI_ID_REG);
-      if (PCI_VENDOR(vend_prod) == 0xffff)
+      pci.dev_id = pci_conf_read(pci, PCI_ID_REG);
+      if (PCI_VENDOR(pci.dev_id) == 0xffff)
         continue;
-      int irq = PCI_INTERRUPT_LINE(pci_conf_read(pci, PCI_INTERRUPT_REG));
-      int class = PCI_CLASS(pci_conf_read(pci, PCI_CLASS_REG));
-      static const char *pci_class[] = {"Unclassified device", "Mass storage controller", "Network controller", "Display controller", "Multimedia device", "Memory controller", "Bridge device"};
+      pci.irq = PCI_INTERRUPT_LINE(pci_conf_read(pci, PCI_INTERRUPT_REG));
+      pci.dev_class = pci_conf_read(pci, PCI_CLASS_REG);
 
-      cprintf("PCI\tbus: %x\t", pci.bus);
-      cprintf("device: %x\t", pci.device);
-      cprintf("function: %d\t", pci.function);
-      cprintf("irq line: %d\t", irq);
-      cprintf("vendor: %x\t", PCI_VENDOR(vend_prod));
-      cprintf("product: %x\t", PCI_PRODUCT(vend_prod));
-      cprintf("class: %s\n", pci_class[class]);
+      print_pci_function(&pci);
     }
   }
 
