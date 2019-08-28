@@ -34,4 +34,11 @@
 #define PCI_BAR_MEM_TYPE_32BIT 0x00000000
 #define PCI_BAR_MASK_MEM_ADDR 0xfffffff0
 
+// ==================== NIC ==================== //
+#define PCI_CONF_STATUS_COMMAND 0x04
+#define PCI_COM_INTR_DIS  (1U << 10)
+
+#define NIC_REG_IMS     0x00d0      // irq mask set
+#define NIC_REG_IMC    0x00d8       // irq mask clear
+
 #endif
