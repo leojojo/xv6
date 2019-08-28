@@ -27,4 +27,11 @@
 #define PCI_CLASS(cr) \
         (((cr) >> PCI_CLASS_SHIFT) & PCI_CLASS_MASK)
 
+#define NETWORK_CONTROLLER_CLASS 2
+
+#define PCI_BAR_REG 0x10
+#define PCI_BAR_MASK_MEM_TYPE 0x00000006
+#define PCI_BAR_MEM_TYPE_32BIT 0x00000000
+#define PCI_BAR_MASK_MEM_ADDR 0xfffffff0
+
 #endif
