@@ -28,6 +28,7 @@ OBJS = \
 	vectors.o\
 	vm.o\
 	pci.o\
+	nic.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf

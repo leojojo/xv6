@@ -2,21 +2,7 @@
 #include "defs.h"
 #include "x86.h"
 #include "pci.h"
-
-struct pci_func {
-  int bus;
-  int device;
-  int function;
-
-  int dev_id;
-  int dev_class;
-
-  int reg_base[6];
-  int reg_size[6];
-  int irq;
-};
-
-void nicinit(struct pci_func *pci);
+#include "nic.h"
 
 int
 pci_conf_read(struct pci_func pci, int offset)
@@ -106,49 +92,4 @@ pciinit()
   }
 
   return device_ctr;
-}
-
-// ==================== NIC ==================== //
-static unsigned int nic_reg_base;
-
-unsigned int
-get_nic_reg(unsigned int reg)
-{
-  unsigned int addr = nic_reg_base + reg;
-  return *(volatile unsigned int *)addr;
-}
-
-void
-set_nic_reg(unsigned int reg, unsigned int val)
-{
-  unsigned int addr = nic_reg_base + reg;
-  *(volatile unsigned int *)addr = val;
-}
-
-static void
-disable_nic_interrupt(struct pci_func *pci)
-{
-  /* 一旦、コマンドとステータスを読み出す */
-  unsigned int conf_data = pci_conf_read(*pci, PCI_CONF_STATUS_COMMAND);
-
-  /* ステータス(上位16ビット)をクリア */
-  conf_data &= 0x0000ffff;
-  /* コマンドに割り込み無効設定 */
-  conf_data |= PCI_COM_INTR_DIS;
-
-  /* コマンドとステータスに書き戻す */
-  pci_conf_write(*pci, PCI_CONF_STATUS_COMMAND, conf_data);
-
-  /* NICの割り込みをIMC(Interrupt Mask Clear Register)で全て無効化 */
-  set_nic_reg(NIC_REG_IMC, 0xffffffff);
-}
-
-void
-nicinit(struct pci_func *pci)
-{
-  /* NICのレジスタのベースアドレスを取得しておく */
-  nic_reg_base = get_base_address(pci);
-
-  /* NICの割り込みを全て無効にする */
-  disable_nic_interrupt(pci);
 }
