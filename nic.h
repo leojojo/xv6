@@ -8,5 +8,6 @@
 #define NIC_REG_IMC    0x00d8       // irq mask clear
 
 void nicinit(struct pci_func *pci);
+void dump_nic_ims();
 
 #endif

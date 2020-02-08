@@ -10,7 +10,7 @@ uint32_t
 get_nic_reg(uint32_t reg)
 {
   uint32_t addr = nic_reg_base + reg;
-  return addr;
+  return *(uint32_t *)addr;
 }
 
 void
@@ -36,10 +36,20 @@ disable_nic_interrupt(struct pci_func *pci)
 }
 
 void
+dump_nic_ims() {
+  uint32_t ims = get_nic_reg(NIC_REG_IMS);
+  cprintf("%x\n",ims);
+  set_nic_reg(NIC_REG_IMS,0x0000beef);
+  ims = get_nic_reg(NIC_REG_IMS);
+  cprintf("%x\n",ims);
+}
+
+void
 nicinit(struct pci_func *pci)
 {
   /* NICのレジスタのベースアドレスを取得しておく */
   nic_reg_base = get_base_address(pci);
   /* NICの割り込みを全て無効にする */
   disable_nic_interrupt(pci);
+  dump_nic_ims();
 }
